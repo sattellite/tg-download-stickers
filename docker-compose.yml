@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  tg-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+    container_name: 'tg-bot'
+    restart: 'always'
