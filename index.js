@@ -5,7 +5,7 @@ const https = require('https');
 const request = require('request');
 const os = require('os');
 const fs = require('fs');
-const { sep } = require('path');
+const { dirname, sep } = require('path');
 
 const archiver = require('archiver');
 
@@ -50,13 +50,14 @@ const downloadSticker = (url, name, path) =>
   });
 
 const getStickerSet = (chatId, setName) => {
-  const meta = {
-    stickers: {},
-  };
+  const meta = { stickers: {} };
   return new Promise((resolve, reject) => {
     fs.mkdtemp(`${tmpDir}${sep}`, (err, folder) => {
       if (err) return reject(err);
-      return resolve(folder);
+      return fs.mkdir(`${folder}${sep}${setName}`, (error) => {
+        if (error) return reject(error);
+        return resolve(`${folder}${sep}${setName}`);
+      });
     });
   })
     .then((folder) => {
@@ -71,10 +72,7 @@ const getStickerSet = (chatId, setName) => {
         return tg.getFile(sticker.file_id).then(f => downloadSticker(f.file_path, i, meta.path));
       }));
     })
-    .then(res => ({
-      files: res,
-      meta,
-    }));
+    .then(res => ({ files: res, meta }));
 };
 
 const writeMeta = (path, data) =>
@@ -89,29 +87,14 @@ const writeMeta = (path, data) =>
 
 const archiveStickers = (path, name, files, meta) =>
   new Promise((resolve, reject) => {
-    const stream = fs.createWriteStream(`${path}${sep}${name}.zip`);
-    stream.on('finish', () =>
-      resolve({
-        path: `${path}${sep}${name}.zip`,
-        meta,
-      }));
+    const stream = fs.createWriteStream(`${dirname(path)}${sep}${name}.zip`);
+    stream.on('finish', () => resolve({ path: `${dirname(path)}${sep}${name}.zip`, meta }));
 
-    const archive = archiver('zip', {
-      zlib: {
-        level: 9,
-      },
-    });
+    const archive = archiver('zip', { zlib: { level: 9 } });
     archive.on('error', e => reject(e));
 
     archive.pipe(stream);
-    files.forEach((file) => {
-      const fn = file.split(sep).pop();
-      archive.file(file, {
-        name: fn,
-      });
-    });
-
-    archive.finalize();
+    archive.directory(path, name).finalize();
   });
 
 const sendFileToChat = (chatId, filePath, caption, replyTo) =>
@@ -158,10 +141,7 @@ bot.on('sticker', (ctx) => {
         stickers: meta.stickers,
       })
         .then(res => files.push(res))
-        .then(() => ({
-          files,
-          meta,
-        }));
+        .then(() => ({ files, meta }));
     })
     .then(data => archiveStickers(data.meta.path, data.meta.name, data.files, data.meta))
     .then(data =>
@@ -171,15 +151,7 @@ bot.on('sticker', (ctx) => {
         `Набор "${data.meta.title}"`,
         ctx.message.message_id,
       ))
-    .then(data =>
-      new Promise(resolve =>
-        rimraf(
-          data
-            .split(sep)
-            .slice(0, -1)
-            .join(sep),
-          resolve,
-        )))
+    .then(data => new Promise(resolve => rimraf(dirname(data), resolve)))
     .catch((err) => {
       ctx.reply('Что-то пошло не так. Попробуйте отправить стикер еще раз.');
       throw err;
