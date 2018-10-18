@@ -101,10 +101,8 @@ const sendFileToChat = (chatId, filePath, caption, replyTo) =>
   new Promise((resolve, reject) => {
     request.post(
       {
-        url: `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?caption=${caption}&reply_to_message_id=${replyTo}&chat_id=${chatId}`,
-        formData: {
-          document: fs.createReadStream(filePath),
-        },
+        url: new URL(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?caption=${caption}&reply_to_message_id=${replyTo}&chat_id=${chatId}`).href,
+        formData: { document: fs.createReadStream(filePath) },
       },
       (err, response) => {
         if (err) return reject(err);
@@ -123,15 +121,21 @@ bot.use((ctx, next) => {
 });
 
 bot.start((ctx) => {
-  ctx.reply('I can help you download one sticker or it set with meta. Send me a sticker 😋');
+  ctx.reply('I will prepare ZIP-archive with stickers set. Just send me a sticker 😋');
 });
 
-bot.command('help', ctx => ctx.reply('I can download one sticker or sticker set with meta'));
+bot.command('help', (ctx) => {
+  const message =
+    'I will prepare ZIP-archive with stickers set. Just send me a sticker 😉\n\n' +
+    "I'm free and open source.\nMy code licensed under Apache License 2.0.\n" +
+    'Source code here https://github.com/sattellite/tg-download-stickers`';
+  ctx.reply(message);
+});
 
 bot.on('sticker', (ctx) => {
   const { sticker } = ctx.message;
   return ctx
-    .reply('Началась обработка. Подождите, пожалуйста')
+    .reply('Processing started. Wait please.')
     .then(msg => getStickerSet(msg.chat.id, sticker.set_name))
     .then((data) => {
       const { meta, files } = data;
@@ -153,7 +157,7 @@ bot.on('sticker', (ctx) => {
       ))
     .then(data => new Promise(resolve => rimraf(dirname(data), resolve)))
     .catch((err) => {
-      ctx.reply('Что-то пошло не так. Попробуйте отправить стикер еще раз.');
+      ctx.reply('Something went wrong. Try to send the sticker again.');
       throw err;
     });
 });
