@@ -134,6 +134,7 @@ bot.command('help', (ctx) => {
 
 bot.on('sticker', (ctx) => {
   const { sticker } = ctx.message;
+  let temp;
   return ctx
     .reply('Processing started. Wait please.')
     .then(msg => getStickerSet(msg.chat.id, sticker.set_name))
@@ -145,7 +146,10 @@ bot.on('sticker', (ctx) => {
         stickers: meta.stickers,
       })
         .then(res => files.push(res))
-        .then(() => ({ files, meta }));
+        .then(() => {
+          temp = meta;
+          return { files, meta };
+        });
     })
     .then(data => archiveStickers(data.meta.path, data.meta.name, data.files, data.meta))
     .then(data =>
@@ -156,6 +160,29 @@ bot.on('sticker', (ctx) => {
         ctx.message.message_id,
       ))
     .then(data => new Promise(resolve => rimraf(dirname(data), resolve)))
+    .then(() => {
+      let to;
+      if (ctx.from.first_name) {
+        to = ctx.from.first_name;
+      }
+      if (ctx.from.last_name) {
+        if (to) {
+          to += ` ${ctx.from.last_name}`;
+        } else {
+          to = ctx.from.last_name;
+        }
+      }
+      if (ctx.from.username) {
+        if (to) {
+          to += ` (@${ctx.from.username})`;
+        } else {
+          to += `@${ctx.from.username}`;
+        }
+      }
+      console.info(`[${dateTimeFormatter.format(new Date())}] [INFO] Uploaded stickers set "${
+        temp.name
+      }" with title "${temp.title}" to ${to}`);
+    })
     .catch((err) => {
       ctx.reply('Something went wrong. Try to send the sticker again.');
       throw err;
