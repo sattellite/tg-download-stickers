@@ -101,7 +101,7 @@ const sendFileToChat = (chatId, filePath, caption, replyTo) =>
   new Promise((resolve, reject) => {
     request.post(
       {
-        url: new URL(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?caption=${caption}&reply_to_message_id=${replyTo}&chat_id=${chatId}`).href,
+        url: encodeURI(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?caption=${caption}&reply_to_message_id=${replyTo}&chat_id=${chatId}`),
         formData: { document: fs.createReadStream(filePath) },
       },
       (err, response) => {
