@@ -1,11 +1,12 @@
 # Telegram bot for download stickers set
 
-
-[![Node](https://img.shields.io/badge/node-%3E%3D6.2.0-brightgreen.svg?style=flat-square)]()
+[![Node](https://img.shields.io/badge/node-%E2%89%A5%208-brightgreen.svg?style=flat-square)]()
 
 Just send sticker to bot and it will reply to your message with zip-archived set of sended sticker.
 
 Bot written with [NodeJS](https://nodejs.org/) and [Telegraf framework](https://github.com/telegraf/telegraf).
+
+Sample bot working here [@TMStickersBot](https://t.me/TMStickersBot)
 
 ## Installation
 
