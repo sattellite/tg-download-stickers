@@ -152,7 +152,7 @@ bot.on('sticker', (ctx) => {
       sendFileToChat(
         ctx.message.chat.id,
         data.path,
-        `Набор "${data.meta.title}"`,
+        `Stickers set "${data.meta.title}"`,
         ctx.message.message_id,
       ))
     .then(data => new Promise(resolve => rimraf(dirname(data), resolve)))
