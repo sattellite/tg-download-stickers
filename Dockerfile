@@ -1,7 +1,6 @@
 FROM node:8
 WORKDIR /usr/src/app
-ADD index.js .
-ADD package.json .
-ADD package-lock.json .
+ADD package.json package-lock.json ./
 RUN npm install
+ADD index.js .
 ENTRYPOINT node index.js
