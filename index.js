@@ -115,25 +115,51 @@ const sendFileToChat = (chatId, filePath, caption, replyTo) =>
     );
   });
 
-bot.use((ctx, next) => {
-  console.info(`[${dateTimeFormatter.format(new Date())}] [INFO] ${JSON.stringify(ctx.from)}`);
-  return next(ctx);
-});
+const logger = text => console.info(`[${dateTimeFormatter.format(new Date())}] [INFO] ${text}`);
+const error = (...err) =>
+  console.error(`[${dateTimeFormatter.format(new Date())}] [ERROR] `, ...err);
+
+const userName = (ctx) => {
+  let to;
+  if (ctx.from.first_name) {
+    to = ctx.from.first_name;
+  }
+  if (ctx.from.last_name) {
+    if (to) {
+      to += ` ${ctx.from.last_name}`;
+    } else {
+      to = ctx.from.last_name;
+    }
+  }
+  if (ctx.from.username) {
+    if (to) {
+      to += ` (@${ctx.from.username})`;
+    } else {
+      to += `@${ctx.from.username}`;
+    }
+  }
+  return to;
+};
 
 bot.start((ctx) => {
+  logger(`Recieved command /start from ${userName(ctx)}`);
   ctx.reply('I will prepare ZIP-archive with stickers set. Just send me a sticker 😋');
 });
 
 bot.command('help', (ctx) => {
+  logger(`Recieved command /help from ${userName(ctx)}`);
   const message =
     'I will prepare ZIP-archive with stickers set. Just send me a sticker 😉\n\n' +
     "I'm free and open source.\nMy code licensed under Apache License 2.0.\n" +
-    'Source code here https://github.com/sattellite/tg-download-stickers`';
+    'Source code here https://github.com/sattellite/tg-download-stickers';
   ctx.reply(message);
 });
 
+bot.on('text', ctx => logger(`Recieved message "${ctx.message.text}" from ${userName(ctx)}`));
+
 bot.on('sticker', (ctx) => {
   const { sticker } = ctx.message;
+  logger(`Recieved sticker set "${sticker.set_name}" from ${userName(ctx)}`);
   let temp;
   return ctx
     .reply('Processing started. Wait please.')
@@ -161,27 +187,7 @@ bot.on('sticker', (ctx) => {
       ))
     .then(data => new Promise(resolve => rimraf(dirname(data), resolve)))
     .then(() => {
-      let to;
-      if (ctx.from.first_name) {
-        to = ctx.from.first_name;
-      }
-      if (ctx.from.last_name) {
-        if (to) {
-          to += ` ${ctx.from.last_name}`;
-        } else {
-          to = ctx.from.last_name;
-        }
-      }
-      if (ctx.from.username) {
-        if (to) {
-          to += ` (@${ctx.from.username})`;
-        } else {
-          to += `@${ctx.from.username}`;
-        }
-      }
-      console.info(`[${dateTimeFormatter.format(new Date())}] [INFO] Uploaded stickers set "${
-        temp.name
-      }" with title "${temp.title}" to ${to}`);
+      logger(`Uploaded stickers set "${temp.name}" with title "${temp.title}" to ${userName(ctx)}`);
     })
     .catch((err) => {
       ctx.reply('Something went wrong. Try to send the sticker again.');
@@ -190,7 +196,9 @@ bot.on('sticker', (ctx) => {
 });
 
 // Catch all error. Simple handler show date and error stack
-bot.catch(err => console.error(`[${dateTimeFormatter.format(new Date())}] [ERROR] `, err));
+bot.catch((err) => {
+  error(err);
+});
 
-console.info(`[${dateTimeFormatter.format(new Date())}] [INFO] Bot started`);
 bot.startPolling();
+logger('Bot started');
