@@ -50,7 +50,7 @@ const downloadSticker = (url, name, path) =>
   });
 
 const getStickerSet = (chatId, setName) => {
-  const meta = { stickers: {} };
+  const meta = { stickers: {}, files: {} };
   return new Promise((resolve, reject) => {
     fs.mkdtemp(`${tmpDir}${sep}`, (err, folder) => {
       if (err) return reject(err);
