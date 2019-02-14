@@ -69,6 +69,7 @@ const getStickerSet = (chatId, setName) => {
       meta.title = set.title;
       return Promise.all(set.stickers.map((sticker, i) => {
         meta.stickers[i] = sticker.emoji;
+        meta.files[i] = sticker.file_id;
         return tg.getFile(sticker.file_id).then(f => downloadSticker(f.file_path, i, meta.path));
       }));
     })
@@ -170,6 +171,7 @@ bot.on('sticker', (ctx) => {
         name: meta.name,
         title: meta.title,
         stickers: meta.stickers,
+        files: meta.files,
       })
         .then(res => files.push(res))
         .then(() => {
