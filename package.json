@@ -1,6 +1,6 @@
 {
   "name": "tm-stickers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Get Telegram stickers and add it to Medium",
   "main": "index.js",
   "author": "Alexander Groshev",

@@ -142,6 +142,11 @@ const userName = (ctx) => {
   return to;
 };
 
+// Catch all error. Simple handler show date and error stack
+bot.catch((err) => {
+  error(err);
+});
+
 bot.start((ctx) => {
   logger(`Recieved command /start from ${userName(ctx)}`);
   ctx.reply('I will prepare ZIP-archive with stickers set. Just send me a sticker 😋');
@@ -195,11 +200,6 @@ bot.on('sticker', (ctx) => {
       ctx.reply('Something went wrong. Try to send the sticker again.');
       throw err;
     });
-});
-
-// Catch all error. Simple handler show date and error stack
-bot.catch((err) => {
-  error(err);
 });
 
 bot.startPolling();
