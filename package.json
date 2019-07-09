@@ -13,7 +13,7 @@
     "archiver": "^2.1.0",
     "request": "^2.88.0",
     "rimraf": "^2.6.2",
-    "telegraf": "^3.25.0"
+    "telegraf": "^3.30.1"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.1",
