@@ -153,7 +153,7 @@ bot.start((ctx) => {
 });
 
 bot.command('help', (ctx) => {
-  logger(`Recieved command /help from ${userName(ctx)}`);
+  logger(`Received command /help from ${userName(ctx)}`);
   const message =
     'I will prepare ZIP-archive with stickers set. Just send me a sticker 😉\n\n' +
     "I'm free and open source.\nMy code licensed under Apache License 2.0.\n" +
@@ -165,7 +165,7 @@ bot.on('text', ctx => logger(`Recieved message "${ctx.message.text}" from ${user
 
 bot.on('sticker', (ctx) => {
   const { sticker } = ctx.message;
-  logger(`Recieved sticker set "${sticker.set_name}" from ${userName(ctx)}`);
+  logger(`Received sticker set "${sticker.set_name}" from ${userName(ctx)}`);
   let temp;
   return ctx
     .reply('Processing started. Wait please.')
