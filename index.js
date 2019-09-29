@@ -36,13 +36,14 @@ const pad = (num, size) => `000000000${num}`.slice(-size);
 
 const downloadSticker = (url, name, path) =>
   new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(`${path}${sep}${pad(name, 4)}.webp`);
+    const ext = url.split('.').pop();
+    const file = fs.createWriteStream(`${path}${sep}${pad(name, 4)}.${ext}`);
     https
       .get(normalizeURL(url), (response) => {
         const stream = response.pipe(file);
         stream.on('finish', () => {
           file.end();
-          return resolve(`${path}${sep}${pad(name, 4)}.webp`);
+          return resolve(`${path}${sep}${pad(name, 4)}.${ext}`);
         });
         stream.on('error', e => reject(e));
       })
