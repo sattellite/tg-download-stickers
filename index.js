@@ -49,7 +49,7 @@ const downloadSticker = (url, name, path) =>
       .on('error', e => reject(e));
   });
 
-const getStickerSet = (chatId, setName) => {
+const getStickerSet = (setName) => {
   const meta = { stickers: {}, files: {} };
   return new Promise((resolve, reject) => {
     fs.mkdtemp(`${tmpDir}${sep}`, (err, folder) => {
@@ -169,7 +169,7 @@ bot.on('sticker', (ctx) => {
   let temp;
   return ctx
     .reply('Processing started. Wait please.')
-    .then(msg => getStickerSet(msg.chat.id, sticker.set_name))
+    .then(() => getStickerSet(sticker.set_name))
     .then((data) => {
       const { meta, files } = data;
       return writeMeta(meta.path, {
