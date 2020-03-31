@@ -36,20 +36,21 @@ const pad = (num, size) => `000000000${num}`.slice(-size);
 
 const downloadSticker = (url, name, path) =>
   new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(`${path}${sep}${pad(name, 4)}.webp`);
+    const ext = url.split('.').pop();
+    const file = fs.createWriteStream(`${path}${sep}${pad(name, 4)}.${ext}`);
     https
       .get(normalizeURL(url), (response) => {
         const stream = response.pipe(file);
         stream.on('finish', () => {
           file.end();
-          return resolve(`${path}${sep}${pad(name, 4)}.webp`);
+          return resolve(`${path}${sep}${pad(name, 4)}.${ext}`);
         });
         stream.on('error', e => reject(e));
       })
       .on('error', e => reject(e));
   });
 
-const getStickerSet = (chatId, setName) => {
+const getStickerSet = (setName) => {
   const meta = { stickers: {}, files: {} };
   return new Promise((resolve, reject) => {
     fs.mkdtemp(`${tmpDir}${sep}`, (err, folder) => {
@@ -153,7 +154,7 @@ bot.start((ctx) => {
 });
 
 bot.command('help', (ctx) => {
-  logger(`Recieved command /help from ${userName(ctx)}`);
+  logger(`Received command /help from ${userName(ctx)}`);
   const message =
     'I will prepare ZIP-archive with stickers set. Just send me a sticker 😉\n\n' +
     "I'm free and open source.\nMy code licensed under Apache License 2.0.\n" +
@@ -165,11 +166,11 @@ bot.on('text', ctx => logger(`Recieved message "${ctx.message.text}" from ${user
 
 bot.on('sticker', (ctx) => {
   const { sticker } = ctx.message;
-  logger(`Recieved sticker set "${sticker.set_name}" from ${userName(ctx)}`);
+  logger(`Received sticker set "${sticker.set_name}" from ${userName(ctx)}`);
   let temp;
   return ctx
     .reply('Processing started. Wait please.')
-    .then(msg => getStickerSet(msg.chat.id, sticker.set_name))
+    .then(() => getStickerSet(sticker.set_name))
     .then((data) => {
       const { meta, files } = data;
       return writeMeta(meta.path, {
